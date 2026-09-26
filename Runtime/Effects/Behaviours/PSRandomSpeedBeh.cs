@@ -6,9 +6,13 @@ public class PSRandomSpeedBeh : PSBehaviour
 
     public override void OnParticleSpawn(ref PSParticle particle)
     {
-        float speed = Random.Range(range.x, range.y);
+        float min = Mathf.Min(range.x, range.y);
+        float max = Mathf.Max(range.x, range.y);
+        float speed = Random.Range(min, max);
 
-        particle.velocity /= emitter.particleSpeed;
-        particle.velocity *= speed;
+        Vector2 velocity = particle.velocity.normalized * speed;
+
+        particle.velocity = velocity;
+        particle.startVelocity = velocity;
     }
 }

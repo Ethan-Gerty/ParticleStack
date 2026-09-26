@@ -7,6 +7,6 @@ public class PSForceBeh : PSBehaviour
 
     public override void UpdateParticle(ref PSParticle particle, float deltaTime)
     {
-        particle.velocity += direction.normalized * force * Time.deltaTime;
+        particle.velocity += direction.normalized * force * deltaTime;
     }
 }

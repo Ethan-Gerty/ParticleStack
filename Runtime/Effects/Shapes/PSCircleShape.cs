@@ -6,17 +6,13 @@ public class PSCircleShape : PSShape
 
     public override void GetSpawnData(out Vector2 position, out Vector2 direction)
     {
-        float radius = Random.Range(radiusRange.x, radiusRange.y);
+        float minRadius = Mathf.Min(radiusRange.x, radiusRange.y);
+        float maxRadius = Mathf.Max(radiusRange.x, radiusRange.y);
+        float radius = Random.Range(minRadius, maxRadius);
 
-        Vector2 offset = Random.insideUnitCircle.normalized * radius;
+        float angle = Random.Range(0f, Mathf.PI * 2f);
+        direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 
-        position = (Vector2)transform.position + offset;
-
-        direction = offset.normalized;
-
-        if (direction == Vector2.zero)
-        {
-            direction = Random.insideUnitCircle.normalized;
-        }
+        position = (Vector2)transform.position + direction * radius;
     }
 }

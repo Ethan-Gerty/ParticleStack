@@ -4,10 +4,9 @@ using UnityEngine.Rendering;
 public class PSEmitter : MonoBehaviour
 {
     // Emission Variables
-    [field: Header("Emitter Settings")]
     [field: SerializeField] public int maxParticles { get; private set; }
 
-    [Header("Particle Settings")]
+    // Particle Settings
     [SerializeField] public float lifetime;
     [SerializeField] public float particleSpeed;
     [SerializeField] public Vector2 particleScale;
@@ -22,7 +21,6 @@ public class PSEmitter : MonoBehaviour
     public int activeParticleCount { get; private set; }
 
     // Rendering Variables
-    [Header("Rendering Settings")]
     [SerializeField] public Sprite sprite;
     [SerializeField] public Material material;
 
@@ -33,11 +31,12 @@ public class PSEmitter : MonoBehaviour
 
     private Mesh particleMesh;
     private Material runtimeMaterial;
+    private Vector4 baseUVRect;
     private MaterialPropertyBlock propertyBlock;
 
     private readonly Matrix4x4[] instanceMatrices = new Matrix4x4[MAX_INSTANCES_PER_BATCH];
-
     private readonly Vector4[] instanceColours = new Vector4[MAX_INSTANCES_PER_BATCH];
+    private readonly Vector4[] instanceUVRects = new Vector4[MAX_INSTANCES_PER_BATCH];
 
 
 
@@ -55,6 +54,15 @@ public class PSEmitter : MonoBehaviour
         runtimeMaterial = new Material(material);
         runtimeMaterial.enableInstancing = true;
         runtimeMaterial.mainTexture = sprite.texture;
+
+        Rect spriteRect = sprite.textureRect;
+
+        baseUVRect = new Vector4(
+            spriteRect.x / sprite.texture.width,
+            spriteRect.y / sprite.texture.height,
+            spriteRect.width / sprite.texture.width,
+            spriteRect.height / sprite.texture.height
+        );
     }
 
     private void Update()
@@ -93,9 +101,11 @@ public class PSEmitter : MonoBehaviour
 
         particle = newParticle;
 
+        particle.uvRect = baseUVRect;
+
         for (int i = 0; i < particleBehaviours.Length; i++)
         {
-            if (particleBehaviours[i] == null)
+            if (particleBehaviours[i] == null || !particleBehaviours[i].isActiveAndEnabled)
                 continue;
 
             particleBehaviours[i].OnParticleSpawn(ref particle);
@@ -116,7 +126,7 @@ public class PSEmitter : MonoBehaviour
 
             for (int b = 0; b < particleBehaviours.Length; b++)
             {
-                if (particleBehaviours[b] == null)
+                if (particleBehaviours[b] == null || !particleBehaviours[b].isActiveAndEnabled)
                     continue;
 
                 particleBehaviours[b].UpdateParticle(
@@ -171,8 +181,39 @@ public class PSEmitter : MonoBehaviour
             triangles[i] = spriteTriangles[i];
         }
 
+        Vector2[] spriteUVs = sprite.uv;
+
+        Vector2 minUV = new Vector2(
+            float.MaxValue,
+            float.MaxValue
+        );
+
+        Vector2 maxUV = new Vector2(
+            float.MinValue,
+            float.MinValue
+        );
+
+        for (int i = 0; i < spriteUVs.Length; i++)
+        {
+            minUV = Vector2.Min(minUV, spriteUVs[i]);
+            maxUV = Vector2.Max(maxUV, spriteUVs[i]);
+        }
+
+        Vector2 uvSize = maxUV - minUV;
+
+        Vector2[] localUVs =
+            new Vector2[spriteUVs.Length];
+
+        for (int i = 0; i < spriteUVs.Length; i++)
+        {
+            localUVs[i] = new Vector2(
+                (spriteUVs[i].x - minUV.x) / uvSize.x,
+                (spriteUVs[i].y - minUV.y) / uvSize.y
+            );
+        }
+
         particleMesh.vertices = vertices;
-        particleMesh.uv = sprite.uv;
+        particleMesh.uv = localUVs;
         particleMesh.triangles = triangles;
 
         particleMesh.RecalculateBounds();
@@ -220,6 +261,7 @@ public class PSEmitter : MonoBehaviour
                 );
 
                 instanceColours[i] = particle.colour;
+                instanceUVRects[i] = particle.uvRect;
             }
 
             propertyBlock.Clear();
@@ -227,6 +269,11 @@ public class PSEmitter : MonoBehaviour
             propertyBlock.SetVectorArray(
                 "_PSColour",
                 instanceColours
+            );
+
+            propertyBlock.SetVectorArray(
+                "_PSUVRect",
+                instanceUVRects
             );
 
             Graphics.DrawMeshInstanced(

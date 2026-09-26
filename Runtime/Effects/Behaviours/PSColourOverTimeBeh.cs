@@ -2,19 +2,14 @@ using UnityEngine;
 
 public class PSColourOverTimeBeh : PSBehaviour
 {
-    [SerializeField] private Color colourTo;
-
-    private Color startColour;
-
-    public override void OnParticleSpawn(ref PSParticle particle)
-    {
-        startColour = particle.colour;
-    }
+    [SerializeField] private Color colourTo = Color.clear;
 
     public override void UpdateParticle(ref PSParticle particle, float deltaTime)
     {
-        float percentage = particle.age / particle.lifeTime;
+        if (particle.lifeTime <= 0f)
+            return;
 
-        particle.colour = Color.Lerp(startColour, colourTo, percentage);
+        float percentage = Mathf.Clamp01(particle.age / particle.lifeTime);
+        particle.colour = Color.Lerp(particle.startColour, colourTo, percentage);
     }
 }

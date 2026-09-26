@@ -3,7 +3,6 @@ using UnityEngine;
 [RequireComponent(typeof(PSEmitter))]
 public abstract class PSEmission : MonoBehaviour
 {
-
     protected PSEmitter emitter;
     protected PSShape shape;
 
@@ -14,10 +13,7 @@ public abstract class PSEmission : MonoBehaviour
 
         if (shape == null)
         {
-            Debug.LogError(
-                $"{GetType().Name} requires a PSShape on {gameObject.name}.",
-                this
-            );
+            Debug.LogError($"{GetType().Name} requires a PSShape on {gameObject.name}.", this);
         }
     }
 
@@ -28,17 +24,22 @@ public abstract class PSEmission : MonoBehaviour
 
         shape.GetSpawnData(out Vector2 position, out Vector2 direction);
 
+        Vector2 velocity = direction.normalized * emitter.particleSpeed;
 
         PSParticle particle = new PSParticle
         {
             position = position,
-            velocity = direction.normalized * emitter.particleSpeed,
+            velocity = velocity,
+            startVelocity = velocity,
 
             zRotation = emitter.startRotation,
             angularVelocity = emitter.startAngularVelocity,
 
             scale = emitter.particleScale,
+            startScale = emitter.particleScale,
+
             colour = emitter.particleColour,
+            startColour = emitter.particleColour,
 
             lifeTime = emitter.lifetime,
             age = 0f

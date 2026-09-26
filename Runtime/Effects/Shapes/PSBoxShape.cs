@@ -2,39 +2,44 @@ using UnityEngine;
 
 public class PSBoxShape : PSShape
 {
-    [SerializeField] private Vector2 boxSize;
+    [SerializeField] private Vector2 boxSize = Vector2.one;
 
     public override void GetSpawnData(out Vector2 position, out Vector2 direction)
     {
-        int i = Random.Range(0, 4);
-        float randomPos;
+        float halfWidth = Mathf.Abs(boxSize.x) * 0.5f;
+        float halfHeight = Mathf.Abs(boxSize.y) * 0.5f;
 
-        switch (i)
+        Vector2 localPosition;
+        Vector2 localDirection;
+
+        switch (Random.Range(0, 4))
         {
             case 0:
-                randomPos = Random.Range(-(boxSize.x / 2), (boxSize.x / 2));
-                position = new Vector2(randomPos, boxSize.y/2);
-                direction = transform.up;
+                localPosition = new Vector2(Random.Range(-halfWidth, halfWidth), halfHeight);
+                localDirection = Vector2.up;
                 break;
+
             case 1:
-                randomPos = Random.Range(-(boxSize.x / 2), (boxSize.x / 2));
-                position = new Vector2(randomPos, -(boxSize.y / 2));
-                direction = -transform.up;
+                localPosition = new Vector2(Random.Range(-halfWidth, halfWidth), -halfHeight);
+                localDirection = Vector2.down;
                 break;
+
             case 2:
-                randomPos = Random.Range(-(boxSize.y / 2), (boxSize.y / 2));
-                position = new Vector2(boxSize.x / 2, randomPos);
-                direction = transform.right;
+                localPosition = new Vector2(halfWidth, Random.Range(-halfHeight, halfHeight));
+                localDirection = Vector2.right;
                 break;
-            case 3:
-                randomPos = Random.Range(-(boxSize.y / 2), (boxSize.y / 2));
-                position = new Vector2(-(boxSize.x / 2), randomPos);
-                direction = -transform.right;
-                break;
+
             default:
-                position = Vector2.zero;
-                direction = transform.up;
+                localPosition = new Vector2(-halfWidth, Random.Range(-halfHeight, halfHeight));
+                localDirection = Vector2.left;
                 break;
         }
+
+        position = (Vector2)transform.position
+                   + (Vector2)transform.right * localPosition.x
+                   + (Vector2)transform.up * localPosition.y;
+
+        direction = ((Vector2)transform.right * localDirection.x
+                     + (Vector2)transform.up * localDirection.y).normalized;
     }
 }

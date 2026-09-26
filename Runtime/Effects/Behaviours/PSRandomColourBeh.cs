@@ -9,6 +9,9 @@ public class PSRandomColourBeh : PSBehaviour
         if (colours == null || colours.Length == 0)
             return;
 
-        particle.colour = colours[Random.Range(0, colours.Length)];
+        Color colour = colours[Random.Range(0, colours.Length)];
+
+        particle.colour = colour;
+        particle.startColour = colour;
     }
 }

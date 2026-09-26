@@ -2,10 +2,11 @@ using UnityEngine;
 
 public class PSDragBeh : PSBehaviour
 {
-    [SerializeField] private float drag = 1.0f;
+    [SerializeField, Min(0f)] private float drag = 1f;
 
     public override void UpdateParticle(ref PSParticle particle, float deltaTime)
     {
-        particle.velocity *= Mathf.Exp(-drag * deltaTime);
+        float safeDrag = Mathf.Max(0f, drag);
+        particle.velocity *= Mathf.Exp(-safeDrag * deltaTime);
     }
 }

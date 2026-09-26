@@ -6,11 +6,10 @@ public class PSLineShape : PSShape
 
     public override void GetSpawnData(out Vector2 position, out Vector2 direction)
     {
-        float half = lineSize / 2f;
+        float half = Mathf.Abs(lineSize) * 0.5f;
         float randomSpawn = Random.Range(-half, half);
 
         position = (Vector2)transform.position + (Vector2)transform.right * randomSpawn;
-
         direction = transform.up;
     }
 }

@@ -2,14 +2,22 @@ using UnityEngine;
 
 public class PSRandomScaleBeh : PSBehaviour
 {
-    [SerializeField] private Vector2 xRange;
-    [SerializeField] private Vector2 yRange;
+    [SerializeField] private Vector2 xRange = Vector2.one;
+    [SerializeField] private Vector2 yRange = Vector2.one;
 
     public override void OnParticleSpawn(ref PSParticle particle)
     {
-        float xScale = Random.Range(xRange.x, xRange.y);
-        float yScale = Random.Range(yRange.x, yRange.y);
+        float xMin = Mathf.Min(xRange.x, xRange.y);
+        float xMax = Mathf.Max(xRange.x, xRange.y);
+        float yMin = Mathf.Min(yRange.x, yRange.y);
+        float yMax = Mathf.Max(yRange.x, yRange.y);
 
-        particle.scale = new Vector2(xScale, yScale);
+        Vector2 scale = new Vector2(
+            Random.Range(xMin, xMax),
+            Random.Range(yMin, yMax)
+        );
+
+        particle.scale = scale;
+        particle.startScale = scale;
     }
 }

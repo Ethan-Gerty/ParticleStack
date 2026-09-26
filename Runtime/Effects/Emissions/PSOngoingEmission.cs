@@ -1,15 +1,15 @@
-using System;
 using UnityEngine;
 
 public class PSOngoingEmission : PSEmission
 {
-    [SerializeField] private float spawnRate = 10f;
+    [SerializeField, Min(0f)] private float spawnRate = 10f;
 
     private float spawnAccumulator;
 
     private void Update()
     {
-        if (spawnRate <= 0f) return;
+        if (spawnRate <= 0f)
+            return;
 
         spawnAccumulator += spawnRate * Time.deltaTime;
 

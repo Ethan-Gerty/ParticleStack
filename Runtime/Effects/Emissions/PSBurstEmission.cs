@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class PSBurstEmission : PSEmission
 {
-    [SerializeField] private int count = 10;
+    [SerializeField, Min(0)] private int count = 10;
 
-    private bool hasStarted = false;
+    private bool hasStarted;
 
     private void Start()
     {
@@ -15,15 +14,17 @@ public class PSBurstEmission : PSEmission
 
     private void OnEnable()
     {
-        if (!hasStarted) return;
+        if (!hasStarted)
+            return;
 
         Burst();
     }
 
-
     public void Burst()
     {
-        for (int i = 0; i < count; i++)
+        int safeCount = Mathf.Max(0, count);
+
+        for (int i = 0; i < safeCount; i++)
         {
             EmitParticle();
         }

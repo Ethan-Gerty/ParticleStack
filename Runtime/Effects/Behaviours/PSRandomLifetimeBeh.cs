@@ -6,8 +6,9 @@ public class PSRandomLifetimeBeh : PSBehaviour
 
     public override void OnParticleSpawn(ref PSParticle particle)
     {
-        float lifetime = Random.Range(range.x, range.y);
+        float min = Mathf.Min(range.x, range.y);
+        float max = Mathf.Max(range.x, range.y);
 
-        particle.lifeTime = lifetime;
+        particle.lifeTime = Mathf.Max(0f, Random.Range(min, max));
     }
 }
